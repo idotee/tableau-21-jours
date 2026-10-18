@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Mon tableau de suivi</title>
+<style>
+:root{--brand:#7A2E3A;--brand-soft:#F3ECED;--line:#E5DADC;--text:#2B2B2B;--muted:#6B6B6B;--bg:#FFFFFF;--ok:#7A2E3A}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;line-height:1.45}
+.wrap{max-width:760px;margin:0 auto;padding:24px 16px 48px}
+h1{color:var(--brand);font-size:1.9rem;margin:0 0 4px}
+.sub{color:var(--muted);margin:0 0 20px}
+h2{color:var(--brand);font-size:1.1rem;margin:28px 0 10px}
+label.start{display:flex;align-items:center;gap:8px;flex-wrap:wrap;color:var(--muted)}
+input[type=date]{font:inherit;padding:6px 8px;border:1px solid var(--line);border-radius:8px;color:var(--text)}
+.progress{margin:18px 0 0;background:var(--brand-soft);border-radius:999px;height:12px;overflow:hidden}
+.progress span{display:block;height:100%;background:var(--brand);width:0;transition:width .3s}
+.ptext{font-size:.9rem;color:var(--muted);margin-top:6px}
+table{width:100%;border-collapse:collapse}
+.state th,.state td{padding:8px 4px;text-align:center;border-bottom:1px solid var(--line)}
+.state thead th{background:var(--brand-soft);color:var(--brand);font-weight:600;font-size:.85rem}
+.state tbody th{text-align:left;color:var(--brand);font-size:.9rem;white-space:nowrap}
+select{font:inherit;font-size:.95rem;padding:4px 2px;border:1px solid var(--line);border-radius:8px;background:#fff;color:var(--text);min-width:52px}
+.days thead th{background:var(--brand);color:#fff;font-size:.78rem;font-weight:600;padding:10px 2px;line-height:1.2}
+.days td,.days th[scope=row]{border-bottom:1px solid var(--line);padding:6px 2px;text-align:center}
+.days th[scope=row]{color:var(--brand);font-weight:700;font-size:.9rem}
+.days tr.week td{background:var(--brand-soft);color:var(--brand);font-weight:700;text-align:left;padding:8px 10px;font-size:.9rem}
+.days tr.today th[scope=row],.days tr.today td{background:#FBF6F7}
+.days tr.today th[scope=row]{box-shadow:inset 4px 0 0 var(--brand)}
+.box{appearance:none;-webkit-appearance:none;width:28px;height:28px;border:2px solid var(--brand);border-radius:7px;margin:0 2px;cursor:pointer;vertical-align:middle;background:#fff;position:relative}
+.box:checked{background:var(--brand)}
+.box:checked::after{content:"";position:absolute;left:8px;top:3px;width:7px;height:13px;border:solid #fff;border-width:0 3px 3px 0;transform:rotate(45deg)}
+.box:focus-visible,select:focus-visible{outline:3px solid #C99AA2;outline-offset:2px}
+.notes{margin-top:18px;font-size:.92rem}
+.notes p{margin:4px 0}
+.notes b{color:var(--brand)}
+.merci{text-align:center;color:var(--brand);font-weight:600;margin:22px 0 0}
+.save{font-size:.82rem;color:var(--muted);text-align:center;margin-top:24px}
+.reset{display:block;margin:10px auto 0;background:none;border:1px solid var(--line);color:var(--muted);border-radius:8px;padding:6px 12px;font:inherit;font-size:.82rem;cursor:pointer}
+@media (max-width:480px){h1{font-size:1.5rem}.box{width:26px;height:26px;margin:0 1px}.box:checked::after{left:7px;top:2px}.days thead th{font-size:.7rem}select{min-width:46px}.state th,.state td{padding:6px 1px}.state thead th{font-size:.7rem}.state tbody th{font-size:.78rem}.state select{min-width:0;width:100%;max-width:54px;font-size:.85rem}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Mon tableau de suivi</h1>
+  <p class="sub">21 jours pour reprendre la main sur ma santé</p>
+  <label class="start">Date de départ : <input type="date" id="start"></label>
+  <div class="progress" aria-hidden="true"><span id="bar"></span></div>
+  <p class="ptext" id="ptext"></p>
+
+  <h2>Mon état, avant et après (de 0 à 10)</h2>
+  <table class="state">
+    <thead><tr><th></th><th>Douleur</th><th>Énergie</th><th>Sommeil</th><th>Digestion</th><th>Stress</th></tr></thead>
+    <tbody id="stateBody"></tbody>
+  </table>
+
+  <h2>Mes 21 jours</h2>
+  <table class="days">
+    <thead><tr><th>Jour</th><th>🍽️<br>Repas allégés</th><th>🫁<br>Cohérence cardiaque</th><th>🚶<br>Marche 30 min</th><th>🥣<br>Micro-diète</th><th>Mon ressenti (0 à 10)</th></tr></thead>
+    <tbody id="daysBody"></tbody>
+  </table>
+
+  <div class="notes">
+    <p><b>Cohérence cardiaque :</b> je coche 1 case si j'ai fait la marche afghane, sinon 2 cases.</p>
+    <p><b>Micro-diète :</b> 1 par semaine, le jour que je choisis.</p>
+    <p><b>Mon ressenti :</b> je note de 0 à 10 comment je me sens dans mon corps.</p>
+  </div>
+  <p class="merci">Un oubli ? Je reprends le lendemain, sans culpabiliser. Chaque soir, je me dis merci.</p>
+
+  <p class="save" id="saveInfo">Ma progression s'enregistre automatiquement sur cet appareil.</p>
+  <button class="reset" id="reset" type="button">Recommencer à zéro</button>
+  <p class="save">Outil réservé aux participants du programme « 21 jours pour reprendre la main sur ma santé ». Contenu protégé par le droit d'auteur, toute reproduction ou diffusion est interdite.</p>
+</div>
+<script>
+(function(){
+  var KEY='suivi21j-v1', data={};
+  try{ data=JSON.parse(localStorage.getItem(KEY))||{}; }catch(e){ data={}; }
+  function save(){ try{ localStorage.setItem(KEY,JSON.stringify(data)); }catch(e){ document.getElementById('saveInfo').textContent="Enregistrement impossible sur ce navigateur (navigation privée ?). Je garde cette page ouverte ou j'utilise un autre navigateur."; } }
+
+  function scoreSelect(id){
+    var s=document.createElement('select'); s.setAttribute('aria-label',id);
+    var o=document.createElement('option'); o.value=''; o.textContent='–'; s.appendChild(o);
+    for(var i=0;i<=10;i++){ o=document.createElement('option'); o.value=i; o.textContent=i; s.appendChild(o); }
+    if(data[id]!==undefined) s.value=data[id];
+    s.addEventListener('change',function(){ if(s.value==='') delete data[id]; else data[id]=s.value; save(); });
+    return s;
+  }
+  function box(id,label){
+    var c=document.createElement('input'); c.type='checkbox'; c.className='box'; c.setAttribute('aria-label',label);
+    c.checked=!!data[id];
+    c.addEventListener('change',function(){ if(c.checked) data[id]=1; else delete data[id]; save(); progress(); });
+    return c;
+  }
+
+  // Avant / après
+  var sb=document.getElementById('stateBody'), cols=['douleur','energie','sommeil','digestion','stress'];
+  [['avant','Avant (J1)'],['apres','Après (J21)']].forEach(function(r){
+    var tr=document.createElement('tr'), th=document.createElement('th'); th.textContent=r[1]; tr.appendChild(th);
+    cols.forEach(function(c){ var td=document.createElement('td'); td.appendChild(scoreSelect(r[0]+'-'+c)); tr.appendChild(td); });
+    sb.appendChild(tr);
+  });
+
+  // 21 jours
+  var db=document.getElementById('daysBody'), rows=[];
+  for(var d=1; d<=21; d++){
+    if((d-1)%7===0){ var w=document.createElement('tr'); w.className='week'; var wt=document.createElement('td'); wt.colSpan=6; wt.textContent='Semaine '+((d-1)/7+1); w.appendChild(wt); db.appendChild(w); }
+    var tr=document.createElement('tr'), th=document.createElement('th'); th.scope='row'; th.textContent='J'+d; tr.appendChild(th);
+    var td=document.createElement('td'); td.appendChild(box('j'+d+'-repas','J'+d+' repas allégés')); tr.appendChild(td);
+    td=document.createElement('td'); td.appendChild(box('j'+d+'-cc1','J'+d+' cohérence cardiaque 1')); td.appendChild(box('j'+d+'-cc2','J'+d+' cohérence cardiaque 2')); tr.appendChild(td);
+    td=document.createElement('td'); td.appendChild(box('j'+d+'-marche','J'+d+' marche')); tr.appendChild(td);
+    td=document.createElement('td'); td.appendChild(box('j'+d+'-diete','J'+d+' micro-diète')); tr.appendChild(td);
+    td=document.createElement('td'); td.appendChild(scoreSelect('j'+d+'-ressenti')); tr.appendChild(td);
+    db.appendChild(tr); rows.push(tr);
+  }
+
+  // Date de départ + jour en cours
+  var start=document.getElementById('start');
+  if(data.start) start.value=data.start;
+  start.addEventListener('change',function(){ data.start=start.value; save(); progress(); });
+
+  function progress(){
+    var done=0;
+    for(var d=1; d<=21; d++){ if(data['j'+d+'-repas']||data['j'+d+'-cc1']||data['j'+d+'-marche']) done++; }
+    document.getElementById('bar').style.width=Math.round(done/21*100)+'%';
+    var txt=done+' jour'+(done>1?'s':'')+' sur 21 avec au moins un geste.';
+    rows.forEach(function(r){ r.classList.remove('today'); });
+    if(data.start){
+      var t=new Date(); t.setHours(0,0,0,0);
+      var s=new Date(data.start+'T00:00:00');
+      var n=Math.floor((t-s)/86400000)+1;
+      if(n>=1 && n<=21){ rows[n-1].classList.add('today'); txt='Aujourd’hui, je suis au jour '+n+'. '+txt; }
+      else if(n>21){ txt='Mes 21 jours sont terminés. Je remplis ma ligne « Après ». '+txt; }
+    }
+    document.getElementById('ptext').textContent=txt;
+  }
+  progress();
+
+  document.getElementById('reset').addEventListener('click',function(){
+    if(confirm('Effacer toute ma progression et recommencer à zéro ?')){ data={}; save(); location.reload(); }
+  });
+})();
+</script>
+</body>
+</html>
